@@ -32,20 +32,22 @@ app.use((req, res) => {
   res.status(404).json({ message: "Route not found" });
 });
 
-// Start server
-async function startServer() {
-  try {
-    // Test database connection
-    await dbConnection.execute("select 'test'");
-    console.log("Database connection established");
-  } catch (error) {
-    console.log("Database connection failed:", error.message);
-  } finally {
-    // Always start the server to avoid Render killing the process
-    app.listen(port, () => {
-      console.log(`Server listening on port ${port}`);
-    });
+// Start server (only for local development)
+if (process.env.NODE_ENV !== "production") {
+  async function startServer() {
+    try {
+      await dbConnection.execute("select 'test'");
+      console.log("Database connection established");
+    } catch (error) {
+      console.log("Database connection failed:", error.message);
+    } finally {
+      app.listen(port, () => {
+        console.log(`Server listening on port ${port}`);
+      });
+    }
   }
+  startServer();
 }
 
-startServer();
+// Export for Vercel
+module.exports = app;
